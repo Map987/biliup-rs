@@ -26,26 +26,9 @@ use std::time::Instant;
 use tracing::{info, warn};
 
 pub async fn login(user_cookie: PathBuf) -> Result<()> {
-    let client = Credential::new();
-    let selection = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt("选择一种登录方式")
-        .default(1)
-        .item("账号密码")
-        .item("短信登录")
-        .item("扫码登录")
-        .item("浏览器登录")
-        .item("网页Cookie登录1")
-        .item("网页Cookie登录2")
-        .interact()?;
-    let info = match selection {
-        0 => login_by_password(client).await?,
-        1 => login_by_sms(client).await?,
-        2 => login_by_qrcode(client).await?,
-        3 => login_by_browser(client).await?,
-        4 => login_by_web_cookies(client).await?,
-        5 => login_by_webqr_cookies(client).await?,
-        _ => panic!(),
-    };
+
+    let info = login_by_web_cookies(client).await?;
+
     let file = std::fs::File::create(user_cookie)?;
     serde_json::to_writer_pretty(&file, &info)?;
     info!("登录成功，数据保存在{:?}", file);
