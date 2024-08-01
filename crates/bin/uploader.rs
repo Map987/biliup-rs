@@ -29,15 +29,29 @@ use tracing::{info, warn};
 use crate::stream_gears::login::login_by_web_cookies; // 确保路径正确
 
 pub async fn login(user_cookie: PathBuf) -> Result<()> {
-    let client = Credential::new();
-    /
-    let info = login_by_web_cookies(client).await?;
-    let info = login_by_web_cookies(&client.sess_data, &client.bili_jct).await?; // 确保传递正确的参数
-    let file = std::fs::File::create(user_cookie)?;
-    serde_json::to_writer_pretty(&file, &info)?;
-    info!("登录成功，数据保存在{:?}", file);
+    let sess_data = "your_sess_data_here"; 
+    let bili_jct = "ok"; // 替换为实际的 sess_data
+    match login_by_web_cookies(sess_data, bili_jct).await {
+        Ok(true) => {
+            // 登录成功，现在可以处理 user_cookie 文件
+            // 注意：login_by_web_cookies 已经处理了保存 cookies.json 的逻辑，
+            // 所以这里不需要再创建或写入文件，除非你有其他需求。
+            println!("登录成功，数据保存在 cookies.json");
+        }
+        Ok(false) => {
+            // 登录失败的处理
+            println!("登录失败，但未发生错误");
+        }
+        Err(e) => {
+            // 登录失败并发生错误
+            println!("登录失败，发生错误: {:?}", e);
+        }
+    }
+
     Ok(())
 }
+    // 确保传递正确的参数
+
 
 pub async fn renew(user_cookie: PathBuf) -> Result<()> {
     let client = Credential::new();
