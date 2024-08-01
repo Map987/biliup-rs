@@ -1,4 +1,6 @@
 use crate::cli::{SubmitOption, UploadLine};
+// 在 uploader.rs 文件的顶部添加以下行
+use crate::stream_gears::login::login_by_web_cookies;
 use anyhow::{anyhow, Context, Result};
 use biliup::client::StatelessClient;
 use biliup::error::Kind;
@@ -24,11 +26,13 @@ use std::pin::Pin;
 use std::task::Poll;
 use std::time::Instant;
 use tracing::{info, warn};
+use crate::stream_gears::login::login_by_web_cookies; // 确保路径正确
 
 pub async fn login(user_cookie: PathBuf) -> Result<()> {
-
+    let client = Credential::new();
+    /
     let info = login_by_web_cookies(client).await?;
-
+    let info = login_by_web_cookies(&client.sess_data, &client.bili_jct).await?; // 确保传递正确的参数
     let file = std::fs::File::create(user_cookie)?;
     serde_json::to_writer_pretty(&file, &info)?;
     info!("登录成功，数据保存在{:?}", file);
